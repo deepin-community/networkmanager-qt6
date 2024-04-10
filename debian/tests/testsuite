@@ -1,0 +1,10 @@
+#!/bin/sh
+
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+[ -e debian/tests.home ] || mkdir debian/tests.home
+export HOME="$(pwd)/debian/tests.home"
+trap 'rm -rf debian/tests.home' EXIT
+
+xvfb-run -a --server-args="-screen 0 1024x768x24+32" \
+    dbus-run-session -- debian/tests/testsuite.xsession

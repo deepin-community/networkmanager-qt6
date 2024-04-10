@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<descriptor>
+
+<version>
+    6.0.0
+</version>
+
+<headers>
+    /usr/include/KF6/NetworkManagerQt/
+</headers>
+
+<libs>
+    /usr/lib/@@DEB_HOST_MULTIARCH@@/libKF6NetworkManagerQt.so
+</libs>
+
+<gcc_options>
+    -fPIC
+    -std=c++11
+    -DQT_NO_SIGNALS_SLOTS_KEYWORDS
+</gcc_options>
+
+</descriptor>

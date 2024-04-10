@@ -1,0 +1,47 @@
+From a1beef01c35395f23a095c7848213f520a6569bc Mon Sep 17 00:00:00 2001
+From: xzl <xiangzelong@deepin.org>
+Date: Tue, 29 Aug 2023 17:44:34 +0800
+Subject: [PATCH] deepin-accesspoints
+
+---
+ src/accesspoint.cpp | 9 +++++++++
+ src/accesspoint.h   | 3 +++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/src/accesspoint.cpp b/src/accesspoint.cpp
+index d033553..c507997 100644
+--- a/src/accesspoint.cpp
++++ b/src/accesspoint.cpp
+@@ -37,6 +37,15 @@ NetworkManager::AccessPoint::Capabilities NetworkManager::AccessPointPrivate::co
+     if (caps & NM_802_11_AP_FLAGS_PRIVACY) {
+         capFlags |= AccessPoint::Privacy;
+     }
++    if (caps & NM_802_11_AP_FLAGS_WPS) {
++        capFlags |= AccessPoint::Wps;
++    }
++    if (caps & NM_802_11_AP_FLAGS_WPS_PBC) {
++        capFlags |= AccessPoint::WpsPbc;
++    }
++    if (caps & NM_802_11_AP_FLAGS_WPS_PIN) {
++        capFlags |= AccessPoint::WpsPin;
++    }
+ 
+     return capFlags;
+ }
+diff --git a/src/accesspoint.h b/src/accesspoint.h
+index 0c2599b..d61b458 100644
+--- a/src/accesspoint.h
++++ b/src/accesspoint.h
+@@ -45,6 +45,9 @@ public:
+     enum Capability {
+         None = 0x0, /**< Null capability - says nothing about the access point */
+         Privacy = 0x1, /**< Access point supports privacy measures */
++        Wps  =  0x2, /**< Access point supports some WPS method */
++        WpsPbc = 0x4, /**< Access point supports push-button WPS */
++        WpsPin = 0x8, /**< Access point supports PIN-based WPS */
+     };
+     /**
+      * Flags describing the access point's capabilities according to WPA (Wifi Protected Access)
+-- 
+2.33.1
+
