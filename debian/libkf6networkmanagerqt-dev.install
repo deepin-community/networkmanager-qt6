@@ -1,0 +1,6 @@
+usr/include/KF6/NetworkManagerQt/
+usr/lib/*/cmake/KF6NetworkManagerQt/
+usr/lib/*/libKF6NetworkManagerQt.so
+usr/lib/*/qt6/qml/org/kde/networkmanager/libnetworkmanagerqtqml.so
+usr/lib/*/qt6/qml/org/kde/networkmanager/qmldir
+usr/lib/*/qt6/qml/org/kde/networkmanager/networkmanagerqtqml.qmltypes

@@ -1,15 +1,58 @@
-Source: template-repository
-Section: unknown
+Source: networkmanager-qt6
+Section: libs
 Priority: optional
-Maintainer: Tsic404 <liuheng@deepin.org>
-Build-Depends: debhelper (>= 11)
-Standards-Version: 4.1.3
-Homepage: https://github.com/deepin-community/template-repository
-#Vcs-Browser: https://salsa.debian.org/debian/deepin-community-template-repository
-#Vcs-Git: https://salsa.debian.org/debian/deepin-community-template-repository.git
+Maintainer: xiangzelong <xiangzelong@deepin.org>
+Uploaders: xiangzelong <xiangzelong@deepin.org>
+Build-Depends: cmake (>= 3.16~),
+               debhelper-compat (= 13),
+               doxygen,
+               extra-cmake-modules (>= 6.0.0~),
+               libnm-dev (>= 1.4.0~),
+               pkg-config,
+               pkg-kde-tools (>= 0.15.15ubuntu1~),
+               qt6-base-dev (>= 6.5~),
+               qt6-declarative-dev (>= 6.5~),
+               qt6-tools-dev,
+               qt6-tools-dev-tools,
+Standards-Version: 4.6.2
+Homepage: https://invent.kde.org/frameworks/networkmanager-qt
+Vcs-Browser: https://salsa.debian.org/qt-kde-team/kde/networkmanager-qt
+Vcs-Git: https://salsa.debian.org/qt-kde-team/kde/networkmanager-qt.git
+Rules-Requires-Root: no
 
-Package: template-repository
+Package: libkf6networkmanagerqt-dev
+Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: libkf6networkmanagerqt6 (= ${binary:Version}),
+         libnm-dev (>= 1.4.0~),
+         qt6-base-dev (>= 6.5.0~),
+         ${misc:Depends},
+         ${shlibs:Depends},
+Recommends: libkf6networkmanagerqt-doc (= ${source:Version}),
+Description: Qt wrapper for NetworkManager - devel files.
+ Qt wrapper for NetworkManager DBus API.
+ .
+ This package is part of the KDE Plasma.
+ .
+ This package contains the development files
+
+Package: libkf6networkmanagerqt-doc
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+Description: Qt wrapper for NetworkManager - library (documentation)
+ Qt wrapper for NetworkManager DBus API.
+ .
+ This package is part of the KDE Plasma.
+ .
+ This package contains the qch documentation files.
+Section: doc
+
+Package: libkf6networkmanagerqt6
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends},
+Breaks: plasma-nm (<= 4:5.6~),
+Description: Qt wrapper for NetworkManager - library
+ Qt wrapper for NetworkManager DBus API.
+ .
+ This package is part of the KDE Plasma.

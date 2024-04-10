@@ -1,0 +1,179 @@
+Index: networkmanager-qt/autotests/activeconnectiontest.cpp
+===================================================================
+--- networkmanager-qt.orig/autotests/activeconnectiontest.cpp
++++ networkmanager-qt/autotests/activeconnectiontest.cpp
+@@ -33,6 +33,7 @@ void ActiveConnectionTest::initTestCase(
+     device->setFirmwareMissing(false);
+     device->setFirmwareVersion(QLatin1String("0.13-3"));
+     device->setInterface(QLatin1String("em1"));
++    device->setInterfaceFlags(1);
+     device->setManaged(true);
+     device->setUdi(QLatin1String("/sys/devices/pci0000:00/0000:00:19.0/net/em1"));
+ 
+Index: networkmanager-qt/autotests/managertest.cpp
+===================================================================
+--- networkmanager-qt.orig/autotests/managertest.cpp
++++ networkmanager-qt/autotests/managertest.cpp
+@@ -29,6 +29,7 @@ void ManagerTest::testDevices()
+     device->setDriver(QLatin1String("e1000e"));
+     device->setDriverVersion(QLatin1String("2.3.2-k"));
+     device->setFirmwareMissing(false);
++    device->setInterfaceFlags(1);
+     device->setFirmwareVersion(QLatin1String("0.13-3"));
+     device->setInterface(QLatin1String("em1"));
+     device->setManaged(true);
+Index: networkmanager-qt/src/dbus/deviceinterface.h
+===================================================================
+--- networkmanager-qt.orig/src/dbus/deviceinterface.h
++++ networkmanager-qt/src/dbus/deviceinterface.h
+@@ -142,6 +142,12 @@ public:
+         return qvariant_cast<QString>(property("IpInterface"));
+     }
+ 
++    Q_PROPERTY(uint InterfaceFlags READ interfaceFlags)
++    inline uint interfaceFlags() const
++    {
++        return qvariant_cast<uint>(property("InterfaceFlags"));
++    }
++
+     Q_PROPERTY(NMVariantMapList LldpNeighbors READ lldpNeighbors)
+     inline NMVariantMapList lldpNeighbors() const
+     {
+Index: networkmanager-qt/src/device.cpp
+===================================================================
+--- networkmanager-qt.orig/src/device.cpp
++++ networkmanager-qt/src/device.cpp
+@@ -294,6 +294,9 @@ void NetworkManager::DevicePrivate::prop
+     } else if (property == QLatin1String("Interface")) {
+         interfaceName = value.toString();
+         Q_EMIT q->interfaceNameChanged();
++    } else if (property == QLatin1String("InterfaceFlags")) {
++        interfaceFlags = value.toUInt();
++        Q_EMIT q->interfaceFlagsChanged();
+     } else if (property == QLatin1String("Ip4Address")) {
+         ipV4Address = QHostAddress(ntohl(value.toUInt()));
+         Q_EMIT q->ipV4AddressChanged();
+@@ -518,6 +521,12 @@ bool NetworkManager::Device::managed() c
+     return d->managed;
+ }
+ 
++uint NetworkManager::Device::interfaceFlags() const
++{
++    Q_D(const Device);
++    return d->interfaceFlags;
++}
++
+ uint NetworkManager::Device::mtu() const
+ {
+     Q_D(const Device);
+Index: networkmanager-qt/src/device.h
+===================================================================
+--- networkmanager-qt.orig/src/device.h
++++ networkmanager-qt/src/device.h
+@@ -42,6 +42,7 @@ class NETWORKMANAGERQT_EXPORT Device : p
+     Q_PROPERTY(QString firmwareVersion READ firmwareVersion)
+     Q_PROPERTY(QVariant genericCapabilities READ capabilitiesV)
+     Q_PROPERTY(QHostAddress ipV4Address READ ipV4Address)
++    Q_PROPERTY(uint InterfaceFlags READ interfaceFlags)
+     Q_PROPERTY(bool managed READ managed)
+     Q_PROPERTY(uint mtu READ mtu)
+     Q_PROPERTY(bool nmPluginMissing READ nmPluginMissing)
+@@ -364,6 +365,10 @@ public:
+      */
+     bool managed() const;
+     /**
++      * The up or down flag for the device
++      */
++    uint interfaceFlags() const;
++    /**
+      * Is the firmware needed by the device missing?
+      */
+     bool firmwareMissing() const;
+@@ -550,7 +555,10 @@ Q_SIGNALS:
+      * Emitted when the managed state of this network has changed.
+      */
+     void managedChanged();
+-
++    /**
++      * Emitted when the up or down state of the device changed
++    */
++    void interfaceFlagsChanged();
+     /**
+      * Emitted when the physical port ID changes.
+      * @see physicalPortId()
+Index: networkmanager-qt/src/device_p.h
+===================================================================
+--- networkmanager-qt.orig/src/device_p.h
++++ networkmanager-qt/src/device_p.h
+@@ -32,6 +32,7 @@ public:
+     Device::Type deviceType;
+     Device::State connectionState;
+     bool managed;
++    uint interfaceFlags;
+     mutable IpConfig ipV4Config;
+     QString ipV4ConfigPath;
+     mutable IpConfig ipV6Config;
+Index: networkmanager-qt/src/fakenetwork/device.cpp
+===================================================================
+--- networkmanager-qt.orig/src/fakenetwork/device.cpp
++++ networkmanager-qt/src/fakenetwork/device.cpp
+@@ -139,6 +139,11 @@ QString Device::ipInterface() const
+     return m_ipInterface;
+ }
+ 
++uint Device::interfaceFlags() const
++{
++    return m_interfaceFlags;
++}
++
+ bool Device::managed() const
+ {
+     return m_managed;
+@@ -224,6 +229,11 @@ void Device::setInterface(const QString
+     m_interface = interface;
+ }
+ 
++void Device::setInterfaceFlags(uint interfaceFlags)
++{
++    m_interfaceFlags = interfaceFlags;
++}
++
+ void Device::setIp4Config(const QString &config)
+ {
+     m_ip4Config = QDBusObjectPath(config);
+Index: networkmanager-qt/src/fakenetwork/device.h
+===================================================================
+--- networkmanager-qt.orig/src/fakenetwork/device.h
++++ networkmanager-qt/src/fakenetwork/device.h
+@@ -38,6 +38,7 @@ public:
+     Q_PROPERTY(QDBusObjectPath Ip4Config READ ip4Config)
+     Q_PROPERTY(QDBusObjectPath Ip6Config READ ip6Config)
+     Q_PROPERTY(QString IpInterface READ ipInterface)
++    Q_PROPERTY(uint InterfaceFlags READ interfaceFlags)
+     Q_PROPERTY(bool Managed READ managed)
+     Q_PROPERTY(uint Mtu READ mtu)
+     Q_PROPERTY(uint State READ state)
+@@ -61,6 +62,7 @@ public:
+     QDBusObjectPath ip4Config() const;
+     QDBusObjectPath ip6Config() const;
+     QString ipInterface() const;
++    uint interfaceFlags() const;
+     bool managed() const;
+     uint mtu() const;
+     uint state() const;
+@@ -83,6 +85,7 @@ public:
+     void setFirmwareMissing(bool firmwareMissing);
+     void setFirmwareVersion(const QString &firmwareVersion);
+     void setInterface(const QString &interface);
++    void setInterfaceFlags(uint interfaceFlags);
+     void setIpv4Address(int address);
+     void setIp4Config(const QString &config);
+     void setIp6Config(const QString &config);
+@@ -114,6 +117,7 @@ private:
+     bool m_firmwareMissing;
+     QString m_firmwareVersion;
+     QString m_interface;
++    uint m_interfaceFlags;
+     int m_ip4Address;
+     QDBusObjectPath m_ip4Config;
+     QDBusObjectPath m_ip6Config;

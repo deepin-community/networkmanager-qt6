@@ -1,4 +1,13 @@
 #!/usr/bin/make -f
+# -*- makefile -*-
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
-	dh $@
+	dh $@ --with kf6,pkgkde_symbolshelper --buildsystem kf6 --without build_stamp
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DBUILD_QCH=ON
+override_dh_auto_test:
+	# Disable tests at build time
+	:
