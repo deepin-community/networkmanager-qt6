@@ -1,0 +1,27 @@
+Index: networkmanager-qt6/src/wirelessnetwork.cpp
+===================================================================
+--- networkmanager-qt6.orig/src/wirelessnetwork.cpp
++++ networkmanager-qt6/src/wirelessnetwork.cpp
+@@ -65,18 +65,10 @@ void NetworkManager::WirelessNetworkPriv
+         return;
+     }
+ 
+-    NetworkManager::AccessPoint::Ptr activeAp = wirelessNetworkInterface->activeAccessPoint();
+-    if (activeAp && activeAp->ssid() == ssid) {
+-        // If the network has an active access point, use it as the referenceAp
+-        selectedStrength = activeAp->signalStrength();
+-        selectedAp = activeAp;
+-    } else {
+-        // Otherwise, choose the access point with the strongest signal
+-        for (const NetworkManager::AccessPoint::Ptr &iface : std::as_const(aps)) {
+-            if (selectedStrength <= iface->signalStrength()) {
+-                selectedStrength = iface->signalStrength();
+-                selectedAp = iface;
+-            }
++    for (const NetworkManager::AccessPoint::Ptr &iface : std::as_const(aps)) {
++        if (selectedStrength <= iface->signalStrength()) {
++            selectedStrength = iface->signalStrength();
++            selectedAp = iface;
+         }
+     }
+ 
