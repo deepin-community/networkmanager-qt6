@@ -1,3 +1,9 @@
+networkmanager-qt6 (6.0.0-0deepin1) unstable; urgency=medium
+
+  * Addressing the issue of delayed network updates
+
+ -- caixiangrong <caixiangrong@uniontech.com>  Thu, 10 Apr 2025 13:22:20 +0800
+
 networkmanager-qt6 (6.0.0-0deepin) unstable; urgency=medium
 
   * Init package 
