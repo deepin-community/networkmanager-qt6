@@ -1,0 +1,26 @@
+Index: networkmanager-qt6/src/accesspoint.cpp
+===================================================================
+--- networkmanager-qt6.orig/src/accesspoint.cpp
++++ networkmanager-qt6/src/accesspoint.cpp
+@@ -46,6 +46,9 @@ NetworkManager::AccessPoint::Capabilitie
+     if (caps & NM_802_11_AP_FLAGS_WPS_PIN) {
+         capFlags |= AccessPoint::WpsPin;
+     }
++    if (caps & NM_802_11_AP_FLAGS_HE) {
++        capFlags |= AccessPoint::He;
++    }
+ 
+     return capFlags;
+ }
+Index: networkmanager-qt6/src/accesspoint.h
+===================================================================
+--- networkmanager-qt6.orig/src/accesspoint.h
++++ networkmanager-qt6/src/accesspoint.h
+@@ -48,6 +48,7 @@ public:
+         Wps  =  0x2, /**< Access point supports some WPS method */
+         WpsPbc = 0x4, /**< Access point supports push-button WPS */
+         WpsPin = 0x8, /**< Access point supports PIN-based WPS */
++        He = 0x10, /**< Access point support high efficiency (new feature in 802.11ax) */
+     };
+     /**
+      * Flags describing the access point's capabilities according to WPA (Wifi Protected Access)
