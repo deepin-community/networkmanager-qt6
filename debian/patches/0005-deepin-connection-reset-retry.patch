@@ -1,0 +1,108 @@
+Index: networkmanager-qt6/src/settings/connectionsettings.cpp
+===================================================================
+--- networkmanager-qt6.orig/src/settings/connectionsettings.cpp
++++ networkmanager-qt6/src/settings/connectionsettings.cpp
+@@ -40,6 +40,10 @@
+ #define NM_SETTING_CONNECTION_AUTOCONNECT_RETRIES "autoconnect-retries"
+ #endif
+ 
++#ifndef NM_SETTING_CONNECTION_AUTOCONNECT_RESET_RETRIES
++#define NM_SETTING_CONNECTION_AUTOCONNECT_RESET_RETRIES "autoconnect-reset-retries"
++#endif
++
+ #if !NM_CHECK_VERSION(1, 12, 0)
+ #define NM_SETTING_CONNECTION_MDNS "mdns"
+ #endif
+@@ -67,6 +71,7 @@ NetworkManager::ConnectionSettingsPrivat
+     , gatewayPingTimeout(0)
+     , autoconnectPriority(0)
+     , autoconnectRetries(-1)
++    , autoconnectResetRetries(-1)
+     , autoconnectSlaves(ConnectionSettings::SlavesDefault)
+     , lldp(ConnectionSettings::LldpDefault)
+     , metered(ConnectionSettings::MeteredUnknown)
+@@ -484,6 +489,7 @@ NetworkManager::ConnectionSettings::Conn
+     setSlaveType(other->slaveType());
+     setGatewayPingTimeout(other->gatewayPingTimeout());
+     setAutoconnectRetries(other->autoconnectRetries());
++    setAutoconnectResetRetries(other->autoconnectResetRetries());
+     setAutoconnectSlaves(other->autoconnectSlaves());
+     setLldp(other->lldp());
+     setMetered(other->metered());
+@@ -566,6 +572,10 @@ void NetworkManager::ConnectionSettings:
+         setAutoconnectRetries(connectionSettings.value(QLatin1String(NM_SETTING_CONNECTION_AUTOCONNECT_RETRIES)).toInt());
+     }
+ 
++    if (connectionSettings.contains(QLatin1String(NM_SETTING_CONNECTION_AUTOCONNECT_RESET_RETRIES))) {
++        setAutoconnectResetRetries(connectionSettings.value(QLatin1String(NM_SETTING_CONNECTION_AUTOCONNECT_RESET_RETRIES)).toInt());
++    }
++
+     if (connectionSettings.contains(QLatin1String(NM_SETTING_CONNECTION_AUTOCONNECT_SLAVES))) {
+         setAutoconnectSlaves(
+             (NetworkManager::ConnectionSettings::AutoconnectSlaves)connectionSettings.value(QLatin1String(NM_SETTING_CONNECTION_AUTOCONNECT_SLAVES)).toInt());
+@@ -736,6 +746,10 @@ NMVariantMapMap NetworkManager::Connecti
+         connectionSetting.insert(QLatin1String(NM_SETTING_CONNECTION_AUTOCONNECT_RETRIES), autoconnectRetries());
+     }
+ 
++    if (autoconnectResetRetries() >= 0) {
++        connectionSetting.insert(QLatin1String(NM_SETTING_CONNECTION_AUTOCONNECT_RESET_RETRIES), autoconnectResetRetries());
++    }
++
+     connectionSetting.insert(QLatin1String(NM_SETTING_CONNECTION_AUTOCONNECT_SLAVES), autoconnectSlaves());
+     connectionSetting.insert(QLatin1String(NM_SETTING_CONNECTION_LLDP), lldp());
+     connectionSetting.insert(QLatin1String(NM_SETTING_CONNECTION_METERED), metered());
+@@ -992,6 +1006,20 @@ void NetworkManager::ConnectionSettings:
+     d->autoconnectRetries = retries;
+ }
+ 
++int NetworkManager::ConnectionSettings::autoconnectResetRetries() const
++{
++    Q_D(const ConnectionSettings);
++
++    return d->autoconnectResetRetries;
++}
++
++void NetworkManager::ConnectionSettings::setAutoconnectResetRetries(int retries)
++{
++    Q_D(ConnectionSettings);
++
++    d->autoconnectResetRetries = retries;
++}
++
+ NetworkManager::ConnectionSettings::AutoconnectSlaves NetworkManager::ConnectionSettings::autoconnectSlaves() const
+ {
+     Q_D(const ConnectionSettings);
+@@ -1106,6 +1134,7 @@ QDebug NetworkManager::operator<<(QDebug
+     dbg.nospace() << NM_SETTING_CONNECTION_SECONDARIES << ": " << setting.secondaries() << '\n';
+     dbg.nospace() << NM_SETTING_CONNECTION_GATEWAY_PING_TIMEOUT << ": " << setting.gatewayPingTimeout() << '\n';
+     dbg.nospace() << NM_SETTING_CONNECTION_AUTOCONNECT_RETRIES << ": " << setting.autoconnectRetries() << '\n';
++    dbg.nospace() << NM_SETTING_CONNECTION_AUTOCONNECT_RESET_RETRIES << ": " << setting.autoconnectResetRetries() << '\n';
+     dbg.nospace() << NM_SETTING_CONNECTION_AUTOCONNECT_SLAVES << ": " << setting.autoconnectSlaves() << '\n';
+     dbg.nospace() << NM_SETTING_CONNECTION_LLDP << ": " << setting.lldp() << '\n';
+     dbg.nospace() << NM_SETTING_CONNECTION_METERED << ": " << setting.metered() << '\n';
+Index: networkmanager-qt6/src/settings/connectionsettings.h
+===================================================================
+--- networkmanager-qt6.orig/src/settings/connectionsettings.h
++++ networkmanager-qt6/src/settings/connectionsettings.h
+@@ -149,6 +149,9 @@ public:
+     void setAutoconnectRetries(int retries);
+     int autoconnectRetries() const;
+ 
++    void setAutoconnectResetRetries(int retries);
++    int autoconnectResetRetries() const;
++
+     void setAutoconnectSlaves(AutoconnectSlaves autoconnectSlaves);
+     AutoconnectSlaves autoconnectSlaves() const;
+ 
+Index: networkmanager-qt6/src/settings/connectionsettings_p.h
+===================================================================
+--- networkmanager-qt6.orig/src/settings/connectionsettings_p.h
++++ networkmanager-qt6/src/settings/connectionsettings_p.h
+@@ -43,6 +43,7 @@ public:
+     quint32 gatewayPingTimeout;
+     int autoconnectPriority;
+     int autoconnectRetries;
++    int autoconnectResetRetries;
+     NetworkManager::ConnectionSettings::AutoconnectSlaves autoconnectSlaves;
+     NetworkManager::ConnectionSettings::Lldp lldp;
+     NetworkManager::ConnectionSettings::Metered metered;
