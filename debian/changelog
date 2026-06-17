@@ -1,3 +1,9 @@
+networkmanager-qt6 (6.0.0-0deepin3) UNRELEASED; urgency=medium
+
+  * add connection-reset-retry options.
+
+ -- donghualin <donghualin@uniontech.com>  Wed, 17 Jun 2026 16:06:04 +0800
+
 networkmanager-qt6 (6.0.0-0deepin2) unstable; urgency=medium
 
   * Add flags of wifi6
