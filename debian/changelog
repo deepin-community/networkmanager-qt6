@@ -1,8 +1,12 @@
-networkmanager-qt6 (6.0.0-0deepin3) UNRELEASED; urgency=medium
+networkmanager-qt6 (6.0.0-0deepin4) unstable; urgency=medium
 
+  [ donghualin ]
   * add connection-reset-retry options.
 
- -- donghualin <donghualin@uniontech.com>  Wed, 17 Jun 2026 16:06:04 +0800
+  [ tunaichao ]
+  * Rebuild with LTO enabled (dpkg vendor feature optimize/lto).
+
+ -- tunaichao <tunaichao@uniontech.com>  Fri, 11 Sep 2026 17:17:02 +0800
 
 networkmanager-qt6 (6.0.0-0deepin2) unstable; urgency=medium
 
