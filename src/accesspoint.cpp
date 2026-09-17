@@ -12,6 +12,28 @@
 
 #include "nmdebug.h"
 
+#include <QStringDecoder>
+
+static QString decodeSsid(const QByteArray &rawSsid)
+{
+    // Try UTF-8 first (the common case)
+    if (QStringDecoder::isDecodableUtf8(rawSsid)) {
+        return QString::fromUtf8(rawSsid);
+    }
+
+    // Fall back to GBK for legacy SSIDs encoded with GBK/GB2312
+    QStringDecoder gbkDecoder("GBK");
+    if (gbkDecoder.isValid()) {
+        QString decoded = gbkDecoder(rawSsid);
+        if (!decoded.isNull()) {
+            return decoded;
+        }
+    }
+
+    // Last resort: UTF-8 with replacement characters (previous behavior)
+    return QString::fromUtf8(rawSsid);
+}
+
 NetworkManager::AccessPointPrivate::AccessPointPrivate(const QString &path, AccessPoint *q)
 #ifdef NMQT_STATIC
     : iface(NetworkManagerPrivate::DBUS_SERVICE, path, QDBusConnection::sessionBus())
@@ -196,7 +218,7 @@ void NetworkManager::AccessPointPrivate::propertiesChanged(const QVariantMap &pr
             Q_EMIT q->rsnFlagsChanged(rsnFlags);
         } else if (property == QLatin1String("Ssid")) {
             rawSsid = it->toByteArray();
-            ssid = QString::fromUtf8(rawSsid);
+            ssid = decodeSsid(rawSsid);
             Q_EMIT q->ssidChanged(ssid);
         } else if (property == QLatin1String("Frequency")) {
             frequency = it->toUInt();
