@@ -1,3 +1,9 @@
+networkmanager-qt6 (6.0.0-0deepin4) unstable; urgency=medium
+
+  * update changelog.
+
+ -- lichenggang <lichenggang@deepin.org>  Fri, 18 Sep 2026 10:39:36 +0800
+
 networkmanager-qt6 (6.0.0-0deepin3) UNRELEASED; urgency=medium
 
   * add connection-reset-retry options.
