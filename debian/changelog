@@ -1,3 +1,9 @@
+networkmanager-qt6 (6.0.0-0deepin5) unstable; urgency=medium
+
+  * Rebuild with LTO enabled (dpkg vendor feature optimize/lto).
+
+ -- tunaichao <tunaichao@uniontech.com>  Mon, 21 Sep 2026 17:20:00 +0800
+
 networkmanager-qt6 (6.0.0-0deepin4) unstable; urgency=medium
 
   * update changelog.
